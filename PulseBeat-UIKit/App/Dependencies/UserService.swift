@@ -7,7 +7,11 @@
 
 class UserService {
     
-    let networkingService = NetworkingService()    
+    private let networkingService: NetworkingServiceProtocol
+    
+    init(networkingService: NetworkingServiceProtocol) {
+        self.networkingService = networkingService
+    }
     
     func getUserSettings() -> [String: Any]{
         return [

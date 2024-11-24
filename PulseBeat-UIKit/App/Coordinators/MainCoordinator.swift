@@ -5,12 +5,16 @@
 //  Created by nhat on 23/11/24.
 //
 import UIKit
+import Swinject
 
 class MainCoordinator: Coordinator {
     var navigationController: UINavigationController
     
-    init(navigationController: UINavigationController) {
+    private let container: Container
+    
+    init(navigationController: UINavigationController, container: Container) {
         self.navigationController = navigationController
+        self.container = container
     }
     
     func start() {
@@ -18,7 +22,16 @@ class MainCoordinator: Coordinator {
     }
     
     private func showLoginScreen() {
-        let loginViewModel = LoginViewModel()
+        let networkingService = container.resolve(NetworkingServiceProtocol.self)!
+        let firebaseService = container.resolve(FirebaseService.self)!
+        let analyticsService = container.resolve(AnalyticsServiceProtocol.self)!
+        
+        let loginViewModel = LoginViewModel(
+            networkingService: networkingService,
+            firebaseService: firebaseService,
+            analyticsService: analyticsService
+        )
+        
         let loginVC = LoginViewController(viewModel: loginViewModel)
         loginVC.onLoginCompletion = { [weak self] result in
             switch result {
@@ -34,11 +47,32 @@ class MainCoordinator: Coordinator {
     }
     
     private func showHomeScreen() {
-        let tabBarController = UITabBarController()
+        let networkingService = container.resolve(NetworkingServiceProtocol.self)!        
+        let analyticsService = container.resolve(AnalyticsServiceProtocol.self)!
+        let adService = container.resolve(AdServiceProtocol.self)!
+        let cacheService = container.resolve(CacheServiceProtocol.self)!
+        let storage = container.resolve(LocalStorage.self)!
         
-        let homeViewModel = HomeViewModel()
-        let favoriteViewModel = FavoriteViewModel()
-        let settingsViewModel = SettingsViewModel()
+        let tabBarController = UITabBarController()
+                
+        let userService = UserService(networkingService: networkingService)
+        
+        let homeViewModel = HomeViewModel(
+            networkingService: networkingService,
+            analyticsService: analyticsService,
+            adService: adService
+        )
+        
+        let favoriteViewModel = FavoriteViewModel(
+            cacheService: cacheService,
+            analyticsService: analyticsService,
+            storage: storage
+        )
+        
+        let settingsViewModel = SettingsViewModel(
+            userService: userService,
+            analyticsService: analyticsService
+        )
         
         let homeVC = HomeViewController(viewModel: homeViewModel)
         homeVC.tabBarItem = UITabBarItem(

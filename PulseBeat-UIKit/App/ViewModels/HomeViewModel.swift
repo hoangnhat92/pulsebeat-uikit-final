@@ -8,11 +8,34 @@
 
 class HomeViewModel {
     
-    private let analyticsService = AnalyticsService()
-    private let adService = AdService()
+    private let analyticsService: AnalyticsServiceProtocol
+    private let adService: AdServiceProtocol
+    private let networkingService: NetworkingServiceProtocol
     
-    private(set) var songs = ["Song 1", "Song 2", "Song 3", "Song 4", "Song 5", "Song 6", "Song 7", "Song 8", "Song 9", "Song 10"]
+    init(networkingService: NetworkingServiceProtocol,
+         analyticsService: AnalyticsServiceProtocol,
+         adService: AdServiceProtocol) {
+        self.networkingService = networkingService
+        self.analyticsService = analyticsService
+        self.adService = adService
+    }
+    
+    private(set) var songs: [String] = []
     let storage = LocalStorage()
+    
+    var onSongsUpdated: (() -> Void)?
+    
+    func fetchLatestSongs() {
+        networkingService.fetchLatestSongs { [weak self] result in
+            switch result {
+            case .success(let songs):
+                self?.songs = songs
+                self?.onSongsUpdated?()
+            case .failure(let error):
+                print(error)
+            }
+        }
+    }
     
     func favoriteSong(at index: Int) {
         var favorites = storage.loadFavoriteSongs()
@@ -24,7 +47,7 @@ class HomeViewModel {
     }
     
     func logIntegration() {
-        analyticsService.logEvent("Home integration")
+        analyticsService.logEvent("Home integration", parameters: [:])
     }
     
     func getAd() -> String {

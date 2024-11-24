@@ -12,10 +12,17 @@ protocol SettingsViewModelDelegate: AnyObject {
 
 class SettingsViewModel {
     
-    private let userService = UserService()
-    private let analyticsService = AnalyticsService()
+    private let userService: UserService
+    private let analyticsService: AnalyticsServiceProtocol
     
     weak var delegate: SettingsViewModelDelegate?
+    
+    init(userService: UserService,
+         analyticsService: AnalyticsServiceProtocol
+    ) {
+        self.userService = userService
+        self.analyticsService = analyticsService
+    }
     
     var sections: [[String]] {
         return [
@@ -29,7 +36,7 @@ class SettingsViewModel {
     }
     
     func logSettingsAccess() {
-        analyticsService.logEvent("Settings Accessed")
+        analyticsService.logEvent("Settings Accessed", parameters: [:])
     }
     
     func logout() {

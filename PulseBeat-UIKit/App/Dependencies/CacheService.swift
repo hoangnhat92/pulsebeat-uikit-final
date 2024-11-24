@@ -6,7 +6,12 @@
 //
 import Foundation
 
-class CacheService {
+protocol CacheServiceProtocol {
+    func get(_ key: String) -> Data?
+    func set(_ key: String, _ value: Data)
+}
+
+class CacheService: CacheServiceProtocol {
     private var cache: [String: Data] = [:]
     
     func get(_ key: String) -> Data? {

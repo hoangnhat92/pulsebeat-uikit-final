@@ -13,7 +13,7 @@ class LoginViewController: UIViewController {
     private let viewModel: LoginViewModel
     
     var onLoginCompletion: ((Result<Void, Error>) -> Void)?
-
+    
     init(viewModel: LoginViewModel) {
         self.viewModel = viewModel
         super.init(nibName: nil, bundle: nil)
@@ -60,7 +60,7 @@ class LoginViewController: UIViewController {
         label.font = .systemFont(ofSize: 14)
         return label
     }()
-   
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -116,7 +116,7 @@ class LoginViewController: UIViewController {
             make.centerX.equalToSuperview()
             make.top.equalTo(loginButton.snp.bottom).offset(16)
             make.width.equalToSuperview().multipliedBy(0.8)
-        }        
+        }
     }
     
     @objc private func loginTapped() {
@@ -124,12 +124,16 @@ class LoginViewController: UIViewController {
         let password = passwordField.text ?? ""
         viewModel.login(username: username, password: password) { [weak self] result in
             switch result {
-                case .success:
-                self?.errorLabel.text = nil
-                self?.onLoginCompletion?(.success(()))
+            case .success:
+                DispatchQueue.main.async {
+                    self?.errorLabel.text = nil
+                    self?.onLoginCompletion?(.success(()))
+                }
             case .failure(let error):
-                self?.errorLabel.text = error.localizedDescription
-                self?.onLoginCompletion?(.failure(error))
+                DispatchQueue.main.async {
+                    self?.errorLabel.text = error.localizedDescription
+                    self?.onLoginCompletion?(.failure(error))
+                }
             }
         }
     }

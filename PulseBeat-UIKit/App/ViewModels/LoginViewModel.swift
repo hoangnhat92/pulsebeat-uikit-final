@@ -29,9 +29,19 @@ struct ForgotPasswordResponse: Decodable {
 
 class LoginViewModel {
     
-    let networkingService = NetworkingService()
-    let firebaseService = FirebaseService()
-    let analyticsService =  AnalyticsService()
+    let networkingService: NetworkingServiceProtocol
+    let firebaseService: FirebaseService
+    let analyticsService: AnalyticsServiceProtocol
+    
+    init(
+        networkingService: NetworkingServiceProtocol,
+        firebaseService: FirebaseService,
+        analyticsService: AnalyticsServiceProtocol
+    ) {
+        self.networkingService = networkingService
+        self.firebaseService = firebaseService
+        self.analyticsService = analyticsService
+    }
     
     func login(username: String, password: String, completion: @escaping (Result<User, LoginError>) -> Void) {
         if !username.isEmpty && !password.isEmpty {
@@ -52,12 +62,10 @@ class LoginViewModel {
         }
     }
     
-    func forgotPassword() {
-        NetworkingService.shared
-            .fetch(
-                urlString: "/forgot-password",
-                responseType: ForgotPasswordResponse.self) { _ in
-                    // Handle response after
-                }
+    func resetPassword() {
+        networkingService
+            .resetPassword { result in
+                // Handle result
+            }
     }
 }

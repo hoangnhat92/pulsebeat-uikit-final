@@ -6,16 +6,38 @@
 //
 import Foundation
 
-class NetworkingService {
-    static let shared = NetworkingService()
+protocol NetworkingServiceProtocol {
+    func resetPassword(completion: @escaping(Result<Void, Error>) -> Void)
+    func fetchLatestSongs(completion: @escaping(Result<[String], Error>) -> Void)
+}
+
+class NetworkingService: NetworkingServiceProtocol {
     
-    private let session = URLSession.shared
+    private let session: URLSession
     
-    func fetch<T: Decodable>(
-        urlString: String,
-        responseType: T.Type,
-        completion: @escaping (Result<T, Error>) -> Void
-    ) {
-        // Perform network request
+    init(session: URLSession = .shared) {
+        self.session = session
+    }
+    
+    func resetPassword(completion: @escaping(Result<Void, Error>) -> Void) {
+        // Perform network here
+    }
+    
+    func fetchLatestSongs(completion: @escaping(Result<[String], Error>) -> Void) {
+        DispatchQueue.global().asyncAfter(deadline: .now() + 1) {
+            completion(.success(
+                [
+                    "A Bar Song",
+                    "Please Please Please",
+                    "Taste",
+                    "Espresso",
+                    "Good News",
+                    "Die With A Smile",
+                    "We can't be friends",
+                    "Like that",
+                    "First Persoon Shooter"
+                ]
+            ))
+        }
     }
 }
